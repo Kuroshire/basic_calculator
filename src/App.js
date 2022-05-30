@@ -1,25 +1,106 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState } from "react";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+
+	const [calc, setCalc] = useState("");
+	const [result, setResult] = useState("");
+
+	const ops = ['/', '*', '+', '-', '.'];
+	const notStarters = ['/', '*'];
+
+	const updateCalc = (value) => {
+		//value is the last button clicked character. (ie: number, operator, etc.)
+
+		//we make sure the user doesn't use / or * first as it doesnt make sense, 
+		//then that he doesnt follow an op input with another one,
+		//which doesn't make sense either.
+		if(
+			notStarters.includes(value) && calc === '' ||
+			ops.includes(value) && ops.includes(calc.slice(-1))
+		){
+			return;
+		}
+
+		setCalc(calc + value);
+
+		//only happens if clicked on = or a digit
+		if(!ops.includes(value)) {
+			setResult(eval(calc + value).toString());
+		}
+	}
+
+
+	const createDigits = () => {
+		const digits = [];
+
+		for(let i = 1; i < 10; i++) {
+			digits.push(
+				<button 
+					onClick={() => updateCalc(i.toString())} 
+					key={i}>
+					{i}
+				</button>
+			);
+		}
+
+		return digits
+	}
+
+
+	const calculate = () => {
+		if(calc == ''){
+			setCalc('');
+			setResult('');
+			return;
+		}
+
+		setCalc(eval(calc).toString());
+		setResult(eval(calc).toString());
+	}
+
+	const deleteLast = () => {
+		if( calc == '') {
+			return;
+		}
+		
+		const value = calc.slice(0, -1);
+		setCalc(value);
+
+		if(ops.includes(value.slice(-1))) {
+			setResult(eval(value.slice(0, -1)).toString());
+		}
+	}
+
+
+  	return (
+    	<div className="App">
+      		<div class="calculator">
+				<div className="display">
+					{result ? <span>({result})</span> : ""} 
+					{calc || "0"}
+				</div>
+				<div className="operators">
+					<button onClick={() => updateCalc('/')}>/</button>
+					<button onClick={() => updateCalc('*')}>*</button>
+					<button onClick={() => updateCalc('+')}>+</button>
+					<button onClick={() => updateCalc('-')}>-</button>
+
+					<button onClick={deleteLast}>DEL</button>
+				</div>
+
+				<div className="digits">
+					{ createDigits() }
+					<button onClick={() => updateCalc('0')}>0</button>
+					<button onClick={() => updateCalc('.')}>.</button>
+					
+					<button onClick= {calculate}>=</button>
+
+
+				</div>
+
+			</div>
+    	</div>
+  	);
 }
 
 export default App;
